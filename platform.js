@@ -1,6 +1,6 @@
 /* يومك حلو — طبقة Firebase (المصادقة + Firestore + الإشعارات) */
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import{getAuth,onAuthStateChanged,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendEmailVerification,sendPasswordResetEmail,signOut as fbSignOut,updateProfile}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import{getAuth,onAuthStateChanged,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendEmailVerification,sendPasswordResetEmail,signOut as fbSignOut,updateProfile,deleteUser}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import{initializeFirestore,persistentLocalCache,persistentMultipleTabManager,getFirestore,doc,getDoc,setDoc,deleteDoc,collection,getDocs,addDoc,onSnapshot,query,where,orderBy,limit,arrayUnion,arrayRemove}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import{getMessaging,getToken,isSupported,onMessage}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 
@@ -77,3 +77,22 @@ export async function enablePush(uid,payload){
 }
 export const savePush=(uid,payload)=>setDoc(doc(db,"fcmTokens",uid),clean(payload),{merge:true}).catch(nop);
 export function onPush(cb){isSupported().then(s=>{if(s&&ok)onMessage(getMessaging(app),cb)}).catch(nop)}
+
+/* ---------- إضافات: إبلاغ، مزامنة الأيام، حذف الحساب ---------- */
+export const flagPost=(id,uid,has)=>setDoc(doc(db,"posts",id),{flags:has?arrayRemove(uid):arrayUnion(uid)},{merge:true});
+export function watchDays(uid,cb){return onSnapshot(collection(db,"users",uid,"days"),s=>{s.docChanges().forEach(c=>{if(c.type!=="removed"&&!c.doc.metadata.hasPendingWrites)cb({id:c.doc.id,...c.doc.data()})})},nop)}
+export async function deleteAccount(uid){
+  const u=auth.currentUser,t=await u.getIdTokenResult();
+  if(Date.now()-Date.parse(t.authTime)>5*60*1000){const e=new Error("recent");e.code="auth/requires-recent-login";throw e}
+  const d=await getDocs(collection(db,"users",uid,"days"));for(const x of d.docs)await deleteDoc(x.ref);
+  const ps=await getDocs(query(collection(db,"posts"),where("uid","==",uid)));for(const x of ps.docs)await deleteDoc(x.ref);
+  for(const p of [["stats",uid],["fcmTokens",uid],["users",uid]])await deleteDoc(doc(db,p[0],p[1]));
+  await deleteUser(u);
+}
+
+/* المدير: حذف مستخدم وبياناته (حساب الدخول نفسه يفضل في Authentication ويتحذف من لوحة Firebase لو أردت) */
+export async function adminDeleteUser(uid){
+  const d=await getDocs(collection(db,"users",uid,"days"));for(const x of d.docs)await deleteDoc(x.ref);
+  const ps=await getDocs(query(collection(db,"posts"),where("uid","==",uid)));for(const x of ps.docs)await deleteDoc(x.ref);
+  for(const p of [["stats",uid],["fcmTokens",uid],["users",uid]])await deleteDoc(doc(db,p[0],p[1])).catch(nop);
+}
