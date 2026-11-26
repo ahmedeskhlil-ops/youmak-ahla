@@ -1,8 +1,8 @@
 /* يومك حلو — Service Worker: كاش + إشعارات الخلفية (FCM) */
 importScripts("config.js");
 importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js","https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js");
-const C = "yawmak-v5";
-const ASSETS = ["./", "index.html", "style.css", "config.js", "app.js", "data.js", "platform.js", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
+const C = "yawmak-v7";
+const ASSETS = ["./", "index.html", "style.css", "config.js", "app.js", "data.js", "platform.js", "i18n.js", "privacy.html", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
 try {
   if (self.YH_CONFIG && String(self.YH_CONFIG.apiKey).indexOf("YOUR_") < 0) {
     firebase.initializeApp(self.YH_CONFIG);

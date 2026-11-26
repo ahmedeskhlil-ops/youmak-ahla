@@ -156,3 +156,11 @@ textarea{font:inherit;width:100%;padding:10px;border-radius:10px;border:1px soli
 .sl{font-size:1.15rem;font-weight:800;color:#ffc83d;margin:6px 0}
 
 .stp{margin:8px 0 0;padding-inline-start:22px;line-height:2}.stp li{margin-bottom:6px}
+
+.ram{--l:#b8851a;--c:#c9972b}
+.ram:before{content:"";display:block;height:7px;border-radius:7px;background:linear-gradient(90deg,#c9972b,#f0d37a,#c9972b);margin-bottom:12px}
+.ram .sum,.ram .eval{border-color:#c9972b}
+.ram .tl li.pr label{background:rgba(201,151,43,.14)}
+.ram .st.g.on{background:#b8851a}
+.tip.ramc{border-inline-start-color:#c9972b;background:linear-gradient(135deg,rgba(201,151,43,.14),transparent),var(--card)}
+.tip.ramc p{color:var(--ink)}
